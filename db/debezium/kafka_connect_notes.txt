@@ -1,0 +1,12 @@
+
+INSERT INTO customers (id, first_name, last_name, email) VALUES(1006, 'Howard', 'Carlson', 'hcaralson@gmail.com');
+
+
+# Check that the connector has been installed
+curl -sS localhost:8083/connector-plugins | jq .[].class | grep postgres
+"io.debezium.connector.postgresql.PostgresConnector"
+
+curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-postgres.json
+
+
+curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-postgres.json
