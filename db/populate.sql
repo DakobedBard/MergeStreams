@@ -10,7 +10,7 @@ CREATE SEQUENCE customer_customer_id_seq
 
 CREATE TABLE customer (
     customer_id integer DEFAULT nextval('customer_customer_id_seq'::regclass) NOT NULL,
-    store_id smallint NOT NULL,
+    store_id smallint,
     first_name character varying(45) NOT NULL,
     last_name character varying(45) NOT NULL,
     email character varying(50),
@@ -20,7 +20,6 @@ CREATE TABLE customer (
     last_update timestamp without time zone DEFAULT now(),
     active integer
 );
-
 
 CREATE SEQUENCE address_address_id_seq
     START WITH 1
@@ -41,6 +40,5 @@ CREATE TABLE address (
     last_update timestamp without time zone DEFAULT now() NOT NULL
 );
 
-
-
-
+\copy address(address_id,address,address2, district, city_id, postal_code, phone, last_update) FROM 'address.csv' DELIMITER ',' CSV HEADER;
+\copy customer(customer_id,store_id,first_name, last_name, email, address_id, activebool, create_date, last_update, active) FROM 'customers.csv' DELIMITER ',' CSV HEADER;
