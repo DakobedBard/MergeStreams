@@ -7,12 +7,18 @@ import lombok.extern.apachecommons.CommonsLog;
 import org.apache.catalina.Executor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.kafka.streams.KeyValue;
+import org.apache.kafka.streams.kstream.KStream;
+import org.apache.kafka.streams.kstream.Materialized;
+import org.apache.kafka.streams.kstream.Predicate;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.stream.annotation.EnableBinding;
+import org.springframework.cloud.stream.annotation.Input;
 import org.springframework.cloud.stream.annotation.Output;
+import org.springframework.cloud.stream.annotation.StreamListener;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
@@ -61,6 +67,18 @@ public class AnalyticsApplication {
 			Executors.newScheduledThreadPool(1).scheduleAtFixedRate(runnable, 1,1, TimeUnit.SECONDS);
 		}
 	}
+	@Component
+	public static class PageViewsEventSink{
+		@StreamListener
+		public void process(
+				@Input (AnalyticsBinding.PAGE_VIEWS_IN) KStream<String, PageViewEvent> events){
+				events.filter((key, value) -> value.getDuration() > 10)
+						.map((key, value) -> new KeyValue<>(value.getPage(),"0"))
+						.groupByKey()
+						.count(Materialized.as(AnalyticsBinding.PAGE_COUNT_MV));
+		}
+	}
+
 
 	public static void main(String[] args) {
 		SpringApplication.run(AnalyticsApplication.class, args);
@@ -70,6 +88,13 @@ public class AnalyticsApplication {
 
 interface AnalyticsBinding{
 	String PAGE_VIEWS_OUT = "pvout";
+	String PAGE_VIEWS_IN = "pvin";
+	String PAGE_COUNT_MV = "pcmv";
+
+	@Input(PAGE_VIEWS_IN)
+	KStream<String,PageViewEvent> pageViewsIn();
+
+
 
 	@Output(PAGE_VIEWS_OUT)
 	MessageChannel pageViewsOut();

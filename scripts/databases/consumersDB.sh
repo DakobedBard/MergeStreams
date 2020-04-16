@@ -1,0 +1,1 @@
+docker exec -it usersDB psql -d usersdb -U database1_role
