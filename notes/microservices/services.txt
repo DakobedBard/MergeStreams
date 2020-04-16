@@ -1,0 +1,46 @@
+ As the number of services grows gradually over time, the web of synchronous interactions grows with them. Previously benign availability issues start to trigger far more widespread outages.
+
+SLA: Service level agreement
+
+This is a well known problem and there are a number of solutions. One is to ensure your individual services have significantly higher SLAs than your system. Google provide a protocol for doing this. The alternative is to simply break down the synchronous ties which bind services together.
+
+ There are three ways that services can interact with one another:
+  Commands
+  Events
+  Queries
+
+
+   Commands are an action. A request for some operation to be performed in another service. Something that will change the state of the system. Commands expect a response.
+    Events are both a Fact and a Trigger. Something that has happened, expressed as a notification.
+    Queries are a request to look something up. Importantly, queries are side effect free; they leave the state of the system unchanged.
+
+
+
+Receiver Driven Routing
+Flipping control to receivers reduces the coupling between services, which opens up an important level of pluggability to the architecture. Components can be swapped in and out with ease.
+
+Pure event-driven systems have no concept of remote queries – events propagate state to services where it is queried locally
+
+There are three advantages of this ‘Query by Event-Carried State Transfer’ approach:
+
+    Better decoupling: Queries are local. They involve no cross-context calls. This ties services far less tightly than their request-driven brethren.
+    Better autonomy: The Orders service has a private copy of the Stock dataset so it can do whatever it likes with it, rather than being limited to the query functionality offered by the Stock Service.
+    Efficient Joins: If we were to “look up the stock” on every order, we would effectively be doing a join over the network between the two services. As workloads grow, or more sources need to be combined, this can be increasingly arduous. ‘Query by Event Carried State Transfer’ solves this issue by bringing queries (and joins) local.
+
+This approach isn’t without its downsides though. Services become inherently stateful. They need to keep track of, and curate, the propagated data set over time. The duplication of state can also make some problems harder to reason about (how do we decrement the stock count atomically?) and we should be careful of divergence over time. But all these issues have workable solutions, they just need a little consideration. This is well worth the effort for larger, more complex estates.
+
+A useful principle to apply with this style of system is to assign responsibility for propagating events of a specific type, to a single service: a single writer. So the Stock Service would own how the ‘Inventory of Stock’ progresses forward over time, the Orders Service would own Orders, etc.
+
+This helps funnel consistency, validation and other ‘write path’ concerns through a single code path (although not necessarily a single process). So in the example below, notice that the Order Service takes control of every state change made to an Order, but the whole event flow spans Orders, Payments and Shipments, each managed by their respective services.
+
+Assigning responsibility for event propagation is important because these aren’t just ephemeral events, or transient chit-chat. They represent shared facts, the data-on-the-outside. As such, services need to take responsibility for curating these shared datasets over time: fixing errors, handling situations where schemas change etc.
+
+
+ If you’ve not considered the distinction between these three before, it’s well worth doing so.
+
+    Decoupling: Break long chains of blocking commands. Decompose synchronous workflows. Brokers decouple services so it’s easier to plug new ones in, or change those that are there.
+    Offline/Async flows: When the user clicks a button many things happen. Some synchronously, some asynchronously. Design for the latter and the former falls out for free.
+    State Transfer: event become the dataset of your system. Streams provide an efficient mechanism for distributing datasets, so they can be reconstituted, and queried, inside a bounded context.
+    Joins: It’s easier to combine/join/augment datasets from different services. Joins are fast and local.
+    Traceability: It’s easier to debug the distributed ‘murder mystery’ when there’s a central, immutable, retentive narrative journaling each interaction as it unfolds in time.
+

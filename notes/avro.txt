@@ -1,0 +1,3 @@
+confluent shcmea registry provides runtime validation of shcema compatibility as well as a caching feature for avro schemas, so they don't need to be included in the message payload
+
+Avro encoded messages, ensuring that incompatible messages will fail on publication, thus protecting the system from invalid data.

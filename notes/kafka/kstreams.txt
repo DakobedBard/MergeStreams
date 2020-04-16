@@ -1,0 +1,12 @@
+Stateful stream processing engines, like Kafka’s Streams API, go a step further:
+they ensure all the data a computation needs is loaded into the API ahead of
+time, be it events or any tables needed to do lookups or enrichments. In many
+cases this makes the API, and hence the application, stateful, and if it were restar‐
+ted for some reason it would need to reacquire that state before it could proceed.
+
+
+This should seem a bit counterintuitive. Why would you want to make a service
+stateful? Another way to look at this is as an advanced form of caching that better
+suits data-intensive workloads. To make this clearer, let’s look at three examples
+—one that uses database lookups, one that is event-driven but stateless, and one
+that is event-driven but stateful

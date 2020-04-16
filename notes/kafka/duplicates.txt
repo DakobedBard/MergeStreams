@@ -1,0 +1,20 @@
+Paying for some product twice sounds pretty bad, particularly if you’re the one doing the paying, but many other scenarios seem far more innocuous. If a customer updates their address, and a failure causes the message to be sent twice, the end result would likely be the same. The address would be updated, to the same value, a second time. Put another way, duplicate messages have no affect on this particular outcome; the operation is naturally idempotent. We use this trick all the time when we build systems, often without even thinking about it.
+
+But what is really happening here is the “address updates” are being deduplicated at the end point, probably by storing them in a database by CustomerId.
+
+We can use the same trick to make payment messages idempotent. To ensure correctness the Payment Provider would have to de-duplicate payments, typically using a database, making use of the unique IDs of each payment. This need for deduplication applies equally to synchronous and asynchronous systems.
+
+So it is actually the use case itself that is important. So long as deduplication happens at the start and end of each use case, it doesn’t matter how many duplicate calls are made in between. This is an old idea, dating back to the early days of TCP. It’s called the End-to-End Principle.
+
+
+
+As a result most event-driven systems end up deduplicating on every message received, before it is processed, and every message sent out has a carefully chosen ID, so it can be deduplicated downstream. This is at best a bit of a hassle. At worst it’s a breeding ground for errors.
+
+
+But if you think about it, this is no more an application layer concern than ordering of messages, arranging redelivery, or any of the other benefits that come with TCP. We choose TCP over UDP, because we want to program at a higher level of abstraction, where delivery, ordering, etc., are handled for us. So we’re left wondering why these issues of duplication have leaked up into the application layer? Isn’t this something our infrastructure should solve for us?
+
+Streaming Platforms, like Apache Kafka, address these issues, allowing you to build long chains of services, where the processing of each step in the chain is wrapped in exactly-once guarantees.
+
+But unlike direct service calls, Kafka is a message broker. An intermediary. This means there are actually two opportunities for duplication. Sending a message to Kafka might fail before an acknowledgement is sent back, with a resulting retry and potential for a duplicate message. On the other side the read from Kafka might fail, before offsets are committed, meaning the same message might be read a second time, when the process restarts.
+
+So idempotence is added to the broker to address the send-side. Idempotence, in this context, is just deduplication. Each producer is given an identifier, and each message is given a sequence number. The combination of the two uniquely defines each batch of messages sent. The broker uses this unique sequence number to work out if a message is already in the log and discards it if it is. This is a  significantly more efficient approach than storing every key you’ve ever seen in a database.

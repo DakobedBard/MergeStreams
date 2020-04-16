@@ -1,0 +1,15 @@
+Being stateful comes with some challenges: when a new node starts, it must load
+all stateful components (i.e., state stores) before it can start processing messages,
+and in the worst case this reload can take some time. To help with this problem,
+Kafka Streams provides three mechanisms for making being stateful a bit more
+practical:
+
+It uses a technique called standby replicas, which ensure that for every table
+or state store on one node, there is a replica kept up to date on another. So, if
+any node fails, it will immediately fail over to its backup node without inter‐
+rupting processing unduly.
+• Disk checkpoints are created periodically so that, should a node fail and
+restart, it can load its previous checkpoint, then top up the few messages it
+missed when it was offline from the log.
+• Finally, compacted topics are used to keep the dataset as small as possible.
+This acts to reduce the load time for a complete rebuild should one be neces‐

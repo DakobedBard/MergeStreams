@@ -1,0 +1,272 @@
+If you were to stumble upon the whole microservices thing, without any prior context, you’d be forgiven for thinking it a little strange. Taking an application and splitting it into fragments, separated by a network, inevitably means injecting the complex failure modes of a distributed system.
+
+Yet, whilst the approach certainly involves many independent services, the goal is a little broader than simply running them across different machines. It’s about facing up to a world that is, itself, inherently distributed. Not in some narrow technical sense, but rather as a broad ecosystem composed from many people, many teams and many programs, all of which need to do their own thing to some degree or other.
+
+Companies for example are collections of disparate systems which, collectively, further some common aim. For decades we have largely ignored this fact, patching them together with FTP file transfers or enterprise integration tools, whilst concentrating on our own somewhat isolationist goals. But services change this. They force our heads up above the parapet, into a world of collaborative, inter-dependent programs. But to be successful at this we must recognize, and design for, two fundamentally different worlds: The external world, where we live in an ecosystem of many other services, and our private, internal world, where we alone reign king.
+
+image03
+
+But this distributed world is a little different to the one we grew up in. The rules of traditional, monolithic software engineering no longer hold water in the same way. So getting such systems right is more than putting together a cool sketch on a whiteboard or a sexy proof of concept. It’s about making these things work successfully over time. Fortunately, services have been around for a long time, albeit in a few different guises. The lessons from SOA still hold, despite the recent sprinkling of Docker, Kubernetes and some slightly over-coiffed hipster beards.
+
+So today we’re going to look at how the rules have changed, why we should rethink our approach to services and the data they share, and why we need a different toolset to do this.
+O’Reilly Book: Designing Event Driven Systems
+Explore all these concepts in detail with the free O’Reilly book “Designing Event Driven Systems. Concepts and Patterns for Streaming Services with Apache Kafka”
+Encapsulation Isn’t Always Your Friend
+
+Microservices are independently deployable. It is this attribute, more than any other, that give them their value.  It allows them to scale. To grow. Not so much in the sense of scaling to quadrillions of users or petabytes of data (although they may help with that), but rather scaling in people terms, as your teams and organization grow.
+
+image20
+
+But independence itself is a double edged sword. It means a service can iterate quickly and freely. But if one service implements a feature which requires another service to change, we end up having to make changes to both services at around the same time. Whilst this is easy in a monolithic application, where you can simply make the change and do a release, it’s considerably more painful where independent services must synchronize. The coordination between teams and release cycles erodes agility.
+
+image19
+
+The typical approach is to simply avoid such pesky, crosscutting changes by cleanly separating responsibilities between services. A Single Sign-On service is a good example. It has a well-defined role which can be cleanly separated from the roles other services play. This clean separation means that, even in the face of rapid requirement churn in surrounding services, it’s unlikely the SSO service will need to change. It exists in a tightly bounded context.
+
+image00
+
+The problem is that, in the real world, business services can’t typically retain the same, clean, separation of concerns. For example, business services inevitably rely more heavily on one another’s data. If you’re an online retailer, the stream of Orders, the Product Catalog or Customer Information will likely find it’s way into the requirements of many of your services. Each of these services needing broad access to these datasets to do their work.
+
+image11
+
+Most business services share the same stream of facts. This makes their futures inevitably intertwined.
+
+So this is an important point to note, whilst services work well for infrastructure components, which have the luxury of living largely in isolation, the futures of most business services are far more tightly intertwined.
+The Data Dichotomy
+
+Service-based approaches may have been around for a while, but they still offer relatively little insight into how to share significant datasets between services.
+
+The underlying issue is that data and services don’t sing too sweetly together. On one side, encapsulation encourages us to hide data; decoupling services from one another so they can continue to change and grow. This is about planning for the future. But on the other side, we need the freedom to slice and dice shared data like any other dataset. This is about getting on with our job right now, with the same freedoms as any other data system.
+
+But data systems have little to do with encapsulation. In fact, quite the contrary. Databases do everything they can to expose the data they hold. They come with a wonderfully powerful, declarative interface that can contort data into pretty much any shape you might desire. Exactly what you need for exploratory investigation, but not so great for managing the onset of complexity in a burgeoning service estate.
+
+
+
+screenshot-2016-12-08-20-17-54
+
+So we find ourselves faced with a conundrum. A contradiction. A dichotomy: Data systems are about exposing data. Services are about hiding it.
+
+image12
+
+These two forces are fundamental. They underlie much of what we do, subtly jostling for supremacy in the systems we build.
+
+As we evolve and grow service-based systems, we see the effects of this Data Dichotomy play out in a couple of different ways. Either a service interface will grow, exposing an increasing set of functions, to the point it starts to look like some form of kookie, homegrown database. Alternatively, frustration will kick in and we add some way of extracting and moving whole datasets, en masse, from service to service.
+
+
+
+image21
+
+Now creating something that looks like a kookie, shared database can lead to a set of issues of its own. We won’t go into the perils of shared databases here, but suffice to say they represent significant and expensive engineering and operational challenges for companies that attempt them.
+
+To make matters somewhat worse, data volume actually amplifies this service boundary problem. The more shared data is hidden inside a service boundary, the more complex the interface will likely become, and the harder it will be to join datasets across different services.
+
+image09
+
+Yet the alternative – extracting and moving whole datasets – has problems too. A common approach to this is to simply extract and hold the whole dataset and then store it in a local database inside each consuming service.
+
+image17
+
+The problem is that different services make different interpretations of the data they consume. They keep that data around. Data is altered and fixed locally. Pretty soon it doesn’t represent the source dataset much at all.
+
+image18
+
+The more mutable copies, the more data will diverge over time.
+
+Making matters worse, divergent data is very hard to fix in retrospect (MDM is really a sticky-plaster over this). In fact some of the most intractable technology problems that businesses encounter arise from divergent datasets proliferating from application to application.image15
+
+To address this we need to think about shared data in a slightly different way. We need to consider it a first class citizen of the architectures we build. Pat Helland calls this data-on-the-outside, and  this is a useful distinction to make. We need encapsulation so we don’t expose a service’s internal state. But we need to make it easy for services to get access to shared data so they can get on and do their jobs.
+
+screenshot-2016-12-08-20-57-47
+
+The problem is that none of the approaches available today, Service Interfaces, Messaging or a Shared Database, provide a good solution for dealing with data-on-the-outside. Service interfaces are poorly suited to sharing data at any level of scale. Messaging moves data, but provides no historical reference, and this leads to data corruption over time. Shared databases concentrate too much in one place, stifling progress. Hence we inevitably get stuck in a cycle of data Inadequacy:
+
+image06
+
+The Cycle of Data Inadequacy
+
+Streams: A Decentralized Approach to Data and Services
+
+So, ideally, we’d like to rejig the way services approach shared data. Now any such approach has to face up to the aforementioned dichotomy, there is no technical fairy dust we can sprinkle on liberally and magic it away. But we can reframe the problem, and pick a subtly different compromise.
+
+This particular compromise involves a degree of centralization. We can use a Distributed Log for this as it provides retentive, scalable streams. Now we need our services to be able to join and operate on these shared streams, but we want to avoid complicated, centralized ‘God Services’ that do this type of processing.  So a better approach is to embed stream processing into each consuming service. That means services can join together various shared datasets and iterate on them at their own pace.
+
+One way to achieve this is to use a Streaming Platform. There are a number of options available, but here we’ll consider Kafka, as it’s use of Stateful Stream Processing makes it particularly well suited to this problem.
+
+image08
+
+Using a distributed log pushes us down a fairly well-trodden path, one which uses messaging to make services Event Driven. Such approaches are generally considered to provide better scalability and better decoupling than their Request-Response brethren, as they move flow control from the sender to the receiver. This increases the autonomy of each service. In fairness it comes at a cost: you need a broker. But for significant systems, this is often a tradeoff worth making (less so for your average web app)
+
+Now if the broker is a distributed log, rather than a traditional messaging system, a few additional properties can be leveraged. The transport can be scaled out linearly in much the same way as a distributed file system. Data can also be retained in the log, long term. So it’s messaging, but it’s also storage. Storage that scales, and without the perils of shared, mutable state.
+
+Then a stateful stream processing engine can be used to embed the declarative tools of a database right inside the consuming services. This point is important. Whilst data is stored in shared streams, which all services might access, the joins and processing a service does, is private. The smarts are isolated inside each bounded context.
+
+
+
+image01
+
+Address the data dichotomy by sharing an immutable stream of state. Then push the function into each service with a Stateful Stream Processing Engine.
+
+So if your service needs to operate on the company’s Orders, Product Catalogue or Inventory, it has full access: you decide which datasets should be combined, you decide where it executes and you decide when and how to evolve it over time. This means that, whilst data itself is shared, operation on that shared data is fully decentralized. It sits entirely inside each service boundary, in a world where you alone reign king.
+
+screenshot-2016-12-08-21-03-20
+
+Share data in a way that keeps it true to source. Encapsulate function, not at source, but in each service that needs it.
+
+Now it turns out that sometimes data must be moved, en masse. Sometimes a service needs a local, historic dataset in a database engine of their choice. The trick here is to ensure that the copy can be regenerated from source at will, by going back to the Distributed Log. Connectors in Kafka help with this.
+
+image13
+So there are a few specific advantages to this approach:
+
+    Data is shared as streams, which can reside in the log long term, but the mechanism for manipulating that shared data is embedded into each bounded context, making it easy to iterate quickly and freely. This balances the data dichotomy.
+    Datasets can easily be joined across different services on the fly. This makes it easier to interact with shared data, avoiding the need to maintain local datasets in a database.
+    Stateful Stream Processing only caches data, the “golden source” is the shared log, so the problems of data diverging over time are far less prevalent.
+    Services are event driven in essence, this means that, as datasets grow, services can still react quickly to business events.
+    Scalability concerns move from services to the broker. This makes it much easier to build simpler services that don’t need to worry about scale.
+    Adding new services doesn’t require upstream services to change. This makes it easier to plug new services in.
+
+So this is more than just REST. It’s a toolset that embraces shared data, in a decentralized way.
+
+This post is really just a taster, glossing over many details. We still need to dig into how we balance request-response and event-driven paradigms. We’ll do this in the next post. There are subjects we need to better understand too, like why Stateful Stream Processing is so valuable. The third post will look at this. There are also some other powerful constructs we can take advantage of, if we choose this path, such as Exactly Once Processing. This is a game changer for distributed, business systems as it provides the transactional guarantees of XA in a scalable form. The fourth post will go into that. Finally, we need to run through the nitty gritty of implementing these things.
+
+image14
+But for now, just remember this:  The Data Dichotomy describes a tension we must all face when we build business services. We should be mindful of this fact. The trick is to switch things up: To consider shared data a first-class citizen. Something we design for. Stateful Stream Processing provides a unique compromise for this. It avoids the central “God Components” that typically stifle progress. But moreover, it brings the immediacy, scalability and fault tolerance of streaming data pipelines and embeds them right inside each service. So we focus on a holistic stream of consciousness which any service can dip into to make its decisions. This makes services more scalable, fungible and autonomous. So not only will they look good on whiteboards and in POCs, they’ll go on to survive and evolve for decades.
+
+
+For many, microservices are built on a protocol of requests and responses. REST etc. This approach is very natural. It is after all the way we write programs: we make calls to other code modules, await a response and continue. It also fits closely with a lot of use cases we see each day: front facing websites where users hit buttons and expect things to happen.
+
+Connected worldBut when we step into a world of many independent services, things start to change. As the number of services grows gradually over time, the web of synchronous interactions grows with them. Previously benign availability issues start to trigger far more widespread outages.
+
+Our unfortunate Ops Engineers end up donning deerstalkers, as they play out distributed murder mysteries. Frantically running from service to service, piecing together snippets of second hand information (who said what, to whom, and when?).
+
+This is a well known problem and there are a number of solutions. One is to ensure your individual services have significantly higher SLAs than your system. Google provide a protocol for doing this. The alternative is to simply break down the synchronous ties which bind services together.
+
+We can use asynchronicity as a mechanism for doing this. If you’re working in online retail you’ll find synchronous interfaces like getImage() or processOrder() feel natural. Calls which expect an immediate response. But when a user clicks ‘Buy’ they trigger a complex and asynchronous process. A process that takes a purchase and physically delivers it to the user’s door, way beyond the context of the original button-click. So splitting software into asynchronous flows allows us to compartmentalise the different problems we need to solve, as well as allowing us to embrace a world that is itself, inherently asynchronous.
+
+In practice we tend to embrace this automatically. We’ve all found ourselves polling database tables for changes, or implementing some kind of scheduled cron job to churn through updates. These are simple ways to break the ties of synchronicity, but they always feel like a bit of a hack. There is a good reason for this. They probably are.
+
+So we can condense all these issues into a single observation. The imperative programming model, where we command services to do our bidding, isn’t a great fit for estates where services are operated independently.
+
+In this post we’re going to look at the other side of the architecture coin: composing services not through chains of commands, but rather through streams of events. This is a valid approach in its own right. It also forms a baseline for the more advanced patterns we’ll be discussing later in this series, where we blend the ideas of event-driven processing with those seen in Streaming Platforms.
+
+Request driven way
+Commands, Events and Queries
+
+Before we dive into an example, we need to fix three simple concepts. There are three ways that services can interact with one another: Commands, Events and Queries. If you’ve not considered the distinction between these three before, it’s well worth doing so.
+
+Commands, event, query
+
+The beauty of events is they are both fact and trigger. Data-on-the-outside that can be reused by any service in the system. But from a services perspective Events lead to less coupling than Commands and Queries. This fact is important.
+The three mechanisms through which services interact:
+
+    Commands are an action. A request for some operation to be performed in another service. Something that will change the state of the system. Commands expect a response.
+    Events are both a Fact and a Trigger. Something that has happened, expressed as a notification.
+    Queries are a request to look something up. Importantly, queries are side effect free; they leave the state of the system unchanged.
+
+
+A Simple Event Driven Flow
+
+Let’s start with a simple example: a customer ordering a widget. Two things happen next:
+
+    The associated payment is processed.
+    The system checks to see if more widgets need to be ordered.
+
+In the request-driven approach this can be represented as a chain of commands. There are currently no queries. The interaction would look like this:
+
+simple event driven flow
+
+The first thing to note is the business process for “Buying more Stock” is initiated by (called by) the Orders Service. This mingles responsibilities across the two services. Ideally we’d have a better separation of concerns.
+
+Now if we can represent the same flow using an Event Driven approach things work a little better.
+
+    The UI Service raises OrderRequested and awaits OrderConfirmed (or Rejected) before returning to the user.
+    Both the Orders Service and the Stock Service react to the raised event.
+
+UI services
+
+Looking at this closely, the Interaction between the UI service and the Orders Service hasn’t changed all that much, other than they communicate via events, rather than calling one another directly.
+
+The Stock service is interesting though. No longer does the Orders Service tell it what to do. It controls whether it partakes in the interaction, or not. This is a very important property of this type of architecture, termed Receiver Driven Routing. Logic is pushed to the receiver of the events, rather than the sender. The burden of responsibility is flipped!
+
+Flipping control to receivers reduces the coupling between services, which opens up an important level of pluggability to the architecture. Components can be swapped in and out with ease.
+
+This element of pluggability becomes increasingly important as architectures become more complex. Say we were to add a service that manages pricing in real time, tweaking a product’s price based on supply and demand. In a command-driven world we would need to introduce a maybeUpdatePrice() method which is called by both the Stock Service and the Orders Service. But in the event-driven world re-pricing is just a service that subscribes to the shared stream, sending out price updates when relevant criteria are met.
+
+UI service, orders service, pricing service, stock service
+O’Reilly Book: Designing Event Driven Systems
+Explore all these concepts in detail with the free O’Reilly book “Designing Event Driven Systems. Concepts and Patterns for Streaming Services with Apache Kafka”
+Blending Events and Queries
+
+The above example considered only commands/events. There were no queries (remember we defined all interactions as being one of commands, events and queries earlier). Queries are a necessity for all but the simplest architecture. So let’s extend the example a bit, making the Orders Service check that there is sufficient Stock before it processes a Payment.
+
+The request-driven approach to this would involve sending a query to the Stock service to retrieve the current stock count. This leads to a hybrid model, where the event stream is used purely for notification, allowing any service to dip into the flow, but queries go directly to source.
+
+ui service, orders service, REST stock service
+
+For larger ecosystems, where services need to evolve independently, remote queries add a lot of coupling, tying services together at runtime. We can avoid such cross-context queries by internalising them. The stream of events is used to cache datasets in each service, where they can be queried locally.
+
+So to add this stock check, the Orders Service would subscribe to the stream of Stock events, storing them locally in a database. It would then query this ‘view’ to validate there is sufficient stock.
+
+Orders Service would subscribe to the stream of Stock events
+
+Pure event-driven systems have no concept of remote queries – events propagate state to services where it is queried locally
+
+There are three advantages of this ‘Query by Event-Carried State Transfer’ approach:
+
+    Better decoupling: Queries are local. They involve no cross-context calls. This ties services far less tightly than their request-driven brethren.
+    Better autonomy: The Orders service has a private copy of the Stock dataset so it can do whatever it likes with it, rather than being limited to the query functionality offered by the Stock Service.
+    Efficient Joins: If we were to “look up the stock” on every order, we would effectively be doing a join over the network between the two services. As workloads grow, or more sources need to be combined, this can be increasingly arduous. ‘Query by Event Carried State Transfer’ solves this issue by bringing queries (and joins) local.
+
+This approach isn’t without its downsides though. Services become inherently stateful. They need to keep track of, and curate, the propagated data set over time. The duplication of state can also make some problems harder to reason about (how do we decrement the stock count atomically?) and we should be careful of divergence over time. But all these issues have workable solutions, they just need a little consideration. This is well worth the effort for larger, more complex estates.
+The Single Writer Principle
+
+A useful principle to apply with this style of system is to assign responsibility for propagating events of a specific type, to a single service: a single writer. So the Stock Service would own how the ‘Inventory of Stock’ progresses forward over time, the Orders Service would own Orders, etc.
+
+This helps funnel consistency, validation and other ‘write path’ concerns through a single code path (although not necessarily a single process). So in the example below, notice that the Order Service takes control of every state change made to an Order, but the whole event flow spans Orders, Payments and Shipments, each managed by their respective services.
+
+Assigning responsibility for event propagation is important because these aren’t just ephemeral events, or transient chit-chat. They represent shared facts, the data-on-the-outside. As such, services need to take responsibility for curating these shared datasets over time: fixing errors, handling situations where schemas change etc.
+
+Here each color represents a topic, in Kafka, for Orders, Shipments and Payments. The basket service starts the ball rolling. When a user clicks ‘buy’ it raises Order Requested, waiting for the Order Confirmed event before it responds back to the user. The three other services handle the state transitions that pertain to their section of the workflow. So for example, after the payment is processed, the Order service pushes the Order from Validated to Confirmed.
+Blending Patterns and Clustering Services
+
+For some the pattern described above will look like Enterprise Messaging, but it is subtly different. Enterprise Messaging, in practice, focuses on state transfer, effectively tying databases together across a network.
+
+Event Collaboration is about services progressing some business goal, through a cascade of events, which trigger services into action. So it’s a pattern for business processing, rather than simply a mechanism for moving state.
+
+But we typically want to leverage both “faces” of this pattern in the systems we build. In fact, one of the beauties of this pattern is it can handle both the micro and the macro, or be hybridized where it makes sense.
+
+Combining patterns is also quite common. We might want the flexibility of remote queries rather than the overhead of maintaining a dataset locally, particularly as datasets grow. This makes it easier to deploy simple functions (which is important if we want to compose lightweight, serverless-styled, event flows), or because we’re in a stateless container or browser.
+
+The trick is to limit the scope of these query interfaces, ideally to within a bounded context*. It’s typically better to have an architecture with many specific, targeted views rather than a single, shared datastore. (*A bounded context, here, is a set of services which share the same deployment cycle or domain model.)
+
+To limit the scope of remote queries we can use a clustered context pattern. Here event flows are the sole communication pattern between contexts. But services within a context leverage both event-driven processing and request-driven views, where they are needed.
+
+In the example below we have three divisions, which communicate with one another only through events. Inside each one we use finer grained event-driven flows. Some of these include a view tier (query layer). This balances coupling with convenience, allowing us to blend fine-grained services with the larger entities; the legacy applications or off the shelf products, which inhabit many real world service estates.
+
+event tier & view tier
+
+Clustered Context Model
+The five key advantages of event-driven services:
+
+    Decoupling: Break long chains of blocking commands. Decompose synchronous workflows. Brokers decouple services so it’s easier to plug new ones in, or change those that are there.
+    Offline/Async flows: When the user clicks a button many things happen. Some synchronously, some asynchronously. Design for the latter and the former falls out for free.
+    State Transfer: event become the dataset of your system. Streams provide an efficient mechanism for distributing datasets, so they can be reconstituted, and queried, inside a bounded context.
+    Joins: It’s easier to combine/join/augment datasets from different services. Joins are fast and local.
+    Traceability: It’s easier to debug the distributed ‘murder mystery’ when there’s a central, immutable, retentive narrative journaling each interaction as it unfolds in time.
+
+Summing Up
+
+So in the event driven approach we use Events instead of Commands. Events trigger processing. They are also turned into views we can query locally. We revert back to remote, synchronous queries where necessary, particularly in smaller ecosystems, but we limit their scope in larger ones (ideally to a single bounded context).
+
+But all these approaches are just patterns. Guiding principles for sewing systems together. We shouldn’t be too dogmatic about them. For example a global query service can still be a good idea, if it is something that rarely changes (like a Single Sign On service).
+
+The trick is to start with a baseline of events. Events provide far less opportunity for services to couple themselves to one another, and flipping flow-control to the receiver makes for better separated concerns and better pluggability.
+
+The other interesting thing about event-driven approaches is they work as well for large, complex architectures as they do for small, highly collaborative ones. A backbone of events gives services the autonomy they need to evolve freely. Missing the complex ties of commands and queries. As for the Ops engineers, they’ll still be wearing deerstalkers and playing murder mystery, but hopefully not quite as often, and at least now the story comes with a script!
+
+But with all this talk of events, we’ve talked little of distributed logs or stream processing. When we apply this pattern with Kafka the rules of the system change. Retention in the broker becomes a tool we can design for, allowing us to embrace data-on-the-outside. Something services can refer back to.
+
+Streaming Platforms sit very naturally with this model of processing events and building views. Views embedded directly inside a service, views a service queries remotely, or views materialised as an on-going stream.
+
+This leads to a whole host of optimisations: leveraging the duality between event stream and event store, blending in stream processing tools that sift through the narrative, joining streams from many services and materializing views we can query. These patterns are empowering. They allow us to reimagine business processing using a toolset specifically designed for handling streams of events. But all these optimisations build on the concepts discussed here, simply applied with a more contemporary toolset.
+
+In the next post, we will look at how we can use the various features Kafka offers to build scalable, highly-available event driven services.

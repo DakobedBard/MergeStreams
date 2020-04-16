@@ -1,0 +1,19 @@
+https://medium.com/trendyol-tech/how-to-integration-test-on-spring-kafka-producer-cb9d1caf0795
+
+@DirtiesContext
+
+The annotation @ClassRule can be used as an alternative to @Rule annotation.
+
+It must be used on a static TestRule fields/methods.
+
+The life cycle of such rule execution is on class level rather than on instance level, which is similar to the static methods annotated with @BeforeClass.
+
+
+
+The distinction becomes clear when you have more than one test method in a class.
+
+A @ClassRule has its before() method run before any of the test methods. Then all the test methods are run, and finally the rule's after() method. So if you have five test methods in a class, before() and after() will still only get run once each.
+
+@ClassRule applies to a static method, and so has all the limitations inherent in that.
+
+A @Rule causes tests to be run via the rule's apply() method, which can do things before and after the target method is run. If you have five test methods, the rule's apply() is called five times, as a wrapper around each method.

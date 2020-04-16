@@ -1,0 +1,5 @@
+Data can be stored in regular topics, which are great for audit or Event Sourcing,
+or compacted topics, which reduce the overall footprint. You can combine the
+two, getting the best of both worlds at the price of additional storage, by holding
+both and linking them together with a Kafka Streams job. This pattern is called
+the latest-versioned pattern.

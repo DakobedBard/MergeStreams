@@ -1,0 +1,3 @@
+A broker is
+a separate piece of infrastructure that broadcasts messages to any programs that
+are interested in them, as well as storing them for as
