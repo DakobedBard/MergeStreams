@@ -8,9 +8,7 @@ import org.apache.catalina.Executor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.kafka.streams.KeyValue;
-import org.apache.kafka.streams.kstream.KStream;
-import org.apache.kafka.streams.kstream.Materialized;
-import org.apache.kafka.streams.kstream.Predicate;
+import org.apache.kafka.streams.kstream.*;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
@@ -79,6 +77,15 @@ public class AnalyticsApplication {
 		}
 	}
 
+//	@Component
+//	public static class PageCountSink{
+//		private final Log log = LogFactory.getLog(getClass());
+//		@StreamListener
+//		public void process(@Input((AnalyticsBinding.PAGE_COUNT_IN)) KTable<String, Long> counts){
+//			counts.toStream()
+//			.foreach((key, value) -> log.info(key+"=" + value));
+//		}
+//	}
 
 	public static void main(String[] args) {
 		SpringApplication.run(AnalyticsApplication.class, args);
@@ -90,14 +97,25 @@ interface AnalyticsBinding{
 	String PAGE_VIEWS_OUT = "pvout";
 	String PAGE_VIEWS_IN = "pvin";
 	String PAGE_COUNT_MV = "pcmv";
+	String PAGE_COUNT_OUT = "pcout";
+	String PAGE_COUNT_IN = "pcin";
 
+	// page views
 	@Input(PAGE_VIEWS_IN)
 	KStream<String,PageViewEvent> pageViewsIn();
 
-
-
 	@Output(PAGE_VIEWS_OUT)
 	MessageChannel pageViewsOut();
+//
+//
+//	@Input(PAGE_COUNT_IN)
+//	KStream<String, Long> pageCountOut();
+//
+//
+//	@Output(PAGE_COUNT_OUT)
+//	KStream<String, Long> pageCountIn();
+
+
 }
 
 
