@@ -22,6 +22,19 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
     container_name: db
+
+  schema-registry:
+    image: confluentinc/cp-schema-registry
+    ports:
+      - 8181:8181
+      - 8081:8081
+    environment:
+      - SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL=zookeeper:2181
+      - SCHEMA_REGISTRY_HOST_NAME=schema-registry
+      - SCHEMA_REGISTRY_LISTENERS=http://schema-registry:8081
+      - SCHEMA_REGISTRY_ACCESS_CONTROL_ALLOW_METHODS=GET,POST,PUT,OPTIONS
+      - SCHEMA_REGISTRY_ACCESS_CONTROL_ALLOW_ORIGIN=*
+
   connect:
     image: debezium/connect:${DEBEZIUM_VERSION}
     ports:
