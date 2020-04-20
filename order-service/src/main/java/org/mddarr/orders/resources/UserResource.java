@@ -1,6 +1,7 @@
 package org.mddarr.orders.resources;
 
 import org.mddarr.orders.event.AvroProducer;
+import org.mddarr.orders.event.dto.Event1;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,8 +21,8 @@ public class UserResource {
     }
 
     @PostMapping(value = "/publish")
-    public String sendMessageToKafkaTopic(@RequestParam("name") String name, @RequestParam("age") Integer age) {
-        this.producer.sendEvent1();
+    public String sendMessageToKafkaTopic(@RequestParam("name") String name, @RequestParam("value") String value) {
+        this.producer.sendEvent1(new Event1(name, value));
         return "hey";
 //        this.producer.sendEvent1();
     }

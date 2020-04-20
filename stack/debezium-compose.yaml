@@ -1,5 +1,14 @@
 version: '2'
 services:
+  postgres:
+    image: debezium/example-postgres:${DEBEZIUM_VERSION}
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=customersDB
+    container_name: db
   zookeeper:
     image: debezium/zookeeper:${DEBEZIUM_VERSION}
     ports:
@@ -14,7 +23,7 @@ services:
       - zookeeper
     environment:
       - ZOOKEEPER_CONNECT=zookeeper:2181
-
+#
   schema-registry:
     image: confluentinc/cp-schema-registry
     ports:
@@ -46,13 +55,3 @@ services:
       - INTERNAL_VALUE_CONVERTER=org.apache.kafka.connect.json.JsonConverter
       - CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL=http://schema-registry:8081
       - CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL=http://schema-registry:8081
-      -
-  postgres:
-    image: debezium/example-postgres:${DEBEZIUM_VERSION}
-    ports:
-      - 5432:5432
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=customersDB
-    container_name: db

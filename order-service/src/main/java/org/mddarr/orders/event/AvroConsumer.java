@@ -1,6 +1,8 @@
 package org.mddarr.orders.event;
 
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.mddarr.orders.Constants;
+import org.mddarr.orders.event.dto.Event1;
 import org.mddarr.orders.event.dto.Event3;
 import org.mddarr.orders.event.dto.Event4;
 import org.slf4j.Logger;
@@ -13,14 +15,8 @@ public class AvroConsumer {
 
     private static final Logger logger = LoggerFactory.getLogger(AvroConsumer.class);
 
-    @KafkaListener(topics = Constants.EVENT_4_TOPIC, groupId = "showcase-consumer")
-    public void receiveCreateMobileApplicationCommand(Event4 event) {
-        logger.info("Event4 received {}", event);
+    @KafkaListener(topics = Constants.EVENT_1_TOPIC, groupId = "group_id")
+    public void consume(ConsumerRecord<String, Event1> record) {
+        logger.info(String.format("Consumed message -> %s", record.value()));
     }
-
-    @KafkaListener(topics = Constants.EVENT_3_TOPIC, groupId = "showcase-consumer")
-    public void receiveCreateUserCommand(Event3 event) {
-        logger.info("Event3 received {}", event);
-    }
-
 }

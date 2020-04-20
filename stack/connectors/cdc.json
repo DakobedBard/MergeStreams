@@ -1,5 +1,5 @@
 {
-  "name": "customer-connector",
+  "name": "customerc",
   "config": {
     "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
     "tasks.max": "1",
@@ -9,6 +9,6 @@
     "database.password": "postgres",
     "database.dbname" : "customersDB",
     "database.server.name": "dbserver1",
-    "schema.whitelist": "customersDB"
+    "schema.whitelist": "customer"
   }
 }

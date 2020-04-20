@@ -18,8 +18,7 @@ public class AvroProducer {
     private KafkaTemplate<String, Event2> kafkaTemplateEvent2;
     private static final Logger logger = LoggerFactory.getLogger(AvroProducer.class);
 
-    public void sendEvent1() {
-        Event1 event1 = Event1.newBuilder().setName("name").setValue("value").build();
+    public void sendEvent1(Event1 event1) {
         logger.info("Send event 1 {}", event1);
         kafkaTemplateEvent1.send(Constants.EVENT_1_TOPIC, event1);
     }

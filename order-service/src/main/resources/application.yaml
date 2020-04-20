@@ -1,5 +1,10 @@
+topic:
+  name: users
+  partitions-num: 3
+  replication-factor: 1
+
 server:
-  port: 8003
+  port: 8004
 spring:
   kafka:
     bootstrap-servers:
