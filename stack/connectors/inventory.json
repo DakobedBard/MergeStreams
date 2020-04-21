@@ -1,5 +1,5 @@
 {
-  "name": "customerkey",
+  "name": "product",
   "config": {
     "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
     "tasks.max": "1",
@@ -8,10 +8,7 @@
     "database.user": "postgres",
     "database.password": "postgres",
     "database.dbname" : "customersDB",
-    "database.server.name": "dbserver1",
-    "schema.whitelist": "customer",
-    "transforms": "InsertKey",
-    "transforms.InsertKey.type": "org.apache.kafka.connect.transforms.ValueToKey",
-    "transforms.InsertKey.fields": "customer_id"
+    "database.server.name": "dbserver",
+    "schema.whitelist": "inventory"
   }
 }

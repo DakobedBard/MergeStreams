@@ -1,24 +1,12 @@
-.env
-export.sh
+# 
+curl -i -X POST -H  http://localhost:8083/connectors/ -d @connectors/inventory.json
 
-curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @connectors/cdc.json
+Delete a connector
+curl -X DELETE localhost:8083/connectors/customers-connector/product
 
-curl -X DELETE localhost:8083/connectors/customers-connector
+# Console consumer
+confluent local consume dbserver.inventory.customer -- --value-format avro --from-beginning --property print.key=true
 
-confluent-hub install debezium/debezium-connector-postgresql:0.9.4
+# List the topics 
+kafka-topics --list --zookeeper localhost:2181
 
-  curl -X POST -H "Content-Type: application/json" --data '{"name": "local-debezium-source", "config": {"connector.class":"FileStreamSinkConnector", "tasks.max":"1", "file":"connectors/cdcc.json", "topics":"connect-test" }}' http://localhost:8083/connectors
-# Or, to use a file containing the JSON-formatted configuration
-# curl -X POST -H "Content-Type: application/json" --data @config.json http://localhost:8083/connectors
-
-
-
-confluent local consume dbserver1.customerDB.customer -- --from-beginning
-
-    "database.hostname": "postgres",
-    "database.port": "5432",
-    "database.user": "postgres",
-    "database.password": "postgres",
-    "database.dbname" : "customersDB",
-    "database.server.name": "dbserver1",
-    "schema.whitelist": "customer"
