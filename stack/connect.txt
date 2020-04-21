@@ -1,13 +1,16 @@
 curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @connectors/inventory.json
+curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @connectors/customer_connector.json
 
 curl -X DELETE localhost:8083/connectors/customers-connector
 
+confluent local consume dbserver.inventory.customer -- --value-format avro --from-beginning --property print.key=true
 
 INSERT INTO customers (id, first_name, last_name, email) VALUES(1006, 'Howard', 'Carlson', 'hcaralson@gmail.com');
 
+# I got the data from the customer table into the kafka topic w/ Connect
+confluent local consume md3.inventory.customer -- --value-format avro --from-beginning --property print.key=true
+
+# List the topics
+kafka-topics --list --zookeeper localhost:2181
 
 
-kafka-avro-console-consumer --bootstrap-server localhost:9092 \
-                              --property schema.registry.url=http://localhost:8081 \
-                              --topic dbserver.inventory.orders
-                              --from-beginning
