@@ -1,6 +1,6 @@
-{"namespace": "org.mddarr.orders.records.dto" ,
+{"namespace": "org.mddarr.orders.resources." ,
  "type": "record",
- "name": "Customer",
+ "name": "customer_resource",
  "fields": [
      {"name": "id", "type": "long"},
      {"name": "firstName", "type": "string"},
@@ -10,4 +10,3 @@
     {"name": "transactionDate", "type": ["int", "null"], "logicalType" : "date"}
  ]
 }
-

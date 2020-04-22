@@ -16,7 +16,14 @@ public class AvroConsumer {
     private static final Logger logger = LoggerFactory.getLogger(AvroConsumer.class);
 
     @KafkaListener(topics = Constants.EVENT_1_TOPIC, groupId = "group_id")
-    public void consume(ConsumerRecord<String, Event1> record) {
+    public void consume(ConsumerRecord<String,Event1> record) {
         logger.info(String.format("Consumed message -> %s", record.value()));
     }
+
+    @KafkaListener(topics = "md.inventory.customers", groupId = "group_id")
+    public void consumeCustomer(ConsumerRecord<?, ?> record) {
+        logger.info(String.format("Consumed message -> %s" ,record.value()));// record.value()));
+    }
+
+
 }

@@ -10,3 +10,7 @@ confluent local consume dbserver.inventory.customer -- --value-format avro --fro
 # List the topics 
 kafka-topics --list --zookeeper localhost:2181
 
+
+
+
+INSERT INTO customers (id, first_name,last_name, email) VALUES (1005,'Dan','Pass', 'dpass@gmail.com');
