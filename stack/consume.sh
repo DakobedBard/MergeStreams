@@ -1,4 +1,4 @@
 #!/bin/bash
-confluent local consume $1 -- --from-beginning --property print.key=true
+confluent local consume $1 -- --value-format avro --from-beginning --property print.key=true
 
 
