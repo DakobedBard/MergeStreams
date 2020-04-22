@@ -1,0 +1,22 @@
+server:
+  port: 8010
+spring:
+  cloud:
+    stream:
+      default-binder: kafka
+      kafka:
+        binder:
+          brokers:
+            - localhost:9092
+      bindings:
+        words:
+          binder: kafka
+          destination: words
+          content-type: text/plain
+          group: input-group-1
+        output:
+          binder: kafka
+          destination: counts
+          group: output-group-1
+          content-type: application/json
+

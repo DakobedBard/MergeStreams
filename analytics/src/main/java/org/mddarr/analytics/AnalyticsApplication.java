@@ -45,11 +45,9 @@ public class AnalyticsApplication {
 		public void run(ApplicationArguments args) throws Exception{
 			List<String> names = Arrays.asList("mfisher", "davi", "schu","acuer","jress");
 			List<String> pages = Arrays.asList("blog", "sitemap", "init","colophon","about");
-
 			Runnable runnable =() -> {
 				String rPage = pages.get(new Random().nextInt(pages.size()));
 				String rName = pages.get(new Random().nextInt(names.size()));
-
 				PageViewEvent pageViewEvent = new PageViewEvent(rName, rPage, Math.random() > .5 ? 10:1000);
 				Message<PageViewEvent> message = MessageBuilder
 						.withPayload(pageViewEvent)
@@ -65,17 +63,18 @@ public class AnalyticsApplication {
 			Executors.newScheduledThreadPool(1).scheduleAtFixedRate(runnable, 1,1, TimeUnit.SECONDS);
 		}
 	}
-	@Component
-	public static class PageViewsEventSink{
-		@StreamListener
-		public void process(
-				@Input (AnalyticsBinding.PAGE_VIEWS_IN) KStream<String, PageViewEvent> events){
-				events.filter((key, value) -> value.getDuration() > 10)
-						.map((key, value) -> new KeyValue<>(value.getPage(),"0"))
-						.groupByKey()
-						.count(Materialized.as(AnalyticsBinding.PAGE_COUNT_MV));
-		}
-	}
+//	@Component
+//	public static class PageViewsEventSink{
+//		@StreamListener
+//		public void process(
+//				@Input (AnalyticsBinding.PAGE_VIEWS_IN) KStream<String, PageViewEvent> events){
+//				events.filter((key, value) -> value.getDuration() > 10)
+//						.map((key, value) -> new KeyValue<>(value.getPage(),"0"))
+//						.groupByKey()
+//						.count(Materialized.as(AnalyticsBinding.PAGE_COUNT_MV));
+//		}
+//	}
+
 
 //	@Component
 //	public static class PageCountSink{
@@ -86,6 +85,7 @@ public class AnalyticsApplication {
 //			.foreach((key, value) -> log.info(key+"=" + value));
 //		}
 //	}
+
 
 	public static void main(String[] args) {
 		SpringApplication.run(AnalyticsApplication.class, args);
@@ -108,12 +108,12 @@ interface AnalyticsBinding{
 	MessageChannel pageViewsOut();
 //
 //
-//	@Input(PAGE_COUNT_IN)
-//	KStream<String, Long> pageCountOut();
-//
-//
-//	@Output(PAGE_COUNT_OUT)
-//	KStream<String, Long> pageCountIn();
+	@Input(PAGE_COUNT_IN)
+	KStream<String, Long> pageCountOut();
+
+
+	@Output(PAGE_COUNT_OUT)
+	KStream<String, Long> pageCountIn();
 
 
 }
