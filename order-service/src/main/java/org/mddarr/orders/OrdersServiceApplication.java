@@ -13,6 +13,7 @@ import javax.annotation.PostConstruct;
 
 @SpringBootApplication
 @ComponentScan(basePackages = "org.mddarr.orders")
+
 public class OrdersServiceApplication {
 
     @Value("${topic.name}")

@@ -11,6 +11,9 @@
     </parent>
 
     <artifactId>orders-service</artifactId>
+    <properties>
+        <spring-cloud.version>Greenwich.RELEASE</spring-cloud.version>
+    </properties>
     <dependencies>
 
         <dependency>
@@ -23,12 +26,14 @@
             <artifactId>avro-compiler</artifactId>
             <version>1.8.2</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-stream -->
 
         <dependency>
             <groupId>org.springframework.kafka</groupId>
             <artifactId>spring-kafka</artifactId>
             <version>${spring-kafka.version}</version>
         </dependency>
+
 
         <dependency>
             <groupId>io.confluent</groupId>
