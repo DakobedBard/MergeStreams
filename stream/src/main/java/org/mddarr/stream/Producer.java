@@ -16,7 +16,7 @@ public class Producer {
 	}
 
 	public interface MySourceBinding {
-		String OUTPUT = "counts";
+		String OUTPUT = "output";
 		@Output(OUTPUT)
 		MessageChannel output();
 	}

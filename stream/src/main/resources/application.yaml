@@ -16,7 +16,7 @@ spring:
           group: input-group-1
         output:
           binder: kafka
-          destination: counts
+          destination: out
           group: output-group-1
           content-type: application/json
 
