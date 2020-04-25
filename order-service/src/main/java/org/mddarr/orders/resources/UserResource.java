@@ -1,6 +1,5 @@
 package org.mddarr.orders.resources;
 
-import org.mddarr.orders.event.AvroProducer;
 import org.mddarr.orders.event.dto.Event1;
 import org.mddarr.orders.event.dto.Order;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.UUID;
+import javax.ws.rs.container.AsyncResponse;
+import javax.ws.rs.core.Response;
 
 
 @RestController

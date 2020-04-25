@@ -1,4 +1,4 @@
-package org.mddarr.orders.event;
+package org.mddarr.orders.resources;
 
 import org.mddarr.orders.Constants;
 import org.mddarr.orders.event.dto.Event1;
