@@ -1,9 +1,7 @@
 package org.mddarr.orders;
 
 import org.mddarr.orders.event.dto.Event1;
-import org.mddarr.orders.event.dto.Event2;
-import org.mddarr.orders.event.dto.Event3;
-import org.mddarr.orders.event.dto.Event4;
+
 import org.mddarr.orders.mock.CustomKafkaAvroDeserializer;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -37,7 +35,7 @@ public abstract class UatAbstractTest {
     private EmbeddedKafkaBroker kafkaEmbedded;
 
     protected Consumer<String, Event1> event1Consumer;
-    protected Consumer<String, Event2> event2Consumer;
+
 
 
     @Before
@@ -55,22 +53,17 @@ public abstract class UatAbstractTest {
 
 
         event1Consumer = new DefaultKafkaConsumerFactory<String, Event1>(configs).createConsumer("in-test-consumer", "10");
-        event2Consumer = new DefaultKafkaConsumerFactory<String, Event2>(configs).createConsumer("in-test-consumer", "10");
-
-
         kafkaProperties.buildConsumerProperties();
 
         event1Consumer.subscribe(Lists.newArrayList(Constants.EVENT_1_TOPIC));
-        event2Consumer.subscribe(Lists.newArrayList(Constants.EVENT_2_TOPIC));
 
-        int c =1;
     }
 
     @After
     public void reset() {
         //consumers needs to be closed because new one are created before every test
         event1Consumer.close();
-        event2Consumer.close();
+
     }
 
 }

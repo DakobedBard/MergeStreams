@@ -24,11 +24,5 @@ public class MessageProducerTest extends UatAbstractTest {
         assertThat(singleRecord).isNotNull();
     }
 
-    @Test
-    public void should_send_event2() {
-        messageProducer.sendEvent2();
 
-        ConsumerRecord<String, Event2> singleRecord = KafkaTestUtils.getSingleRecord(event2Consumer, Constants.EVENT_2_TOPIC);
-        assertThat(singleRecord).isNotNull();
-    }
 }

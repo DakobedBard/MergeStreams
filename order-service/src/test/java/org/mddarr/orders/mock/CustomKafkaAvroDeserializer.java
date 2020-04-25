@@ -2,9 +2,7 @@ package org.mddarr.orders.mock;
 
 import org.mddarr.orders.Constants;
 import org.mddarr.orders.event.dto.Event1;
-import org.mddarr.orders.event.dto.Event2;
-import org.mddarr.orders.event.dto.Event3;
-import org.mddarr.orders.event.dto.Event4;
+
 import io.confluent.kafka.schemaregistry.client.MockSchemaRegistryClient;
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
 import io.confluent.kafka.serializers.KafkaAvroDeserializer;
@@ -19,15 +17,7 @@ public class CustomKafkaAvroDeserializer extends KafkaAvroDeserializer {
         if (topic.equals(Constants.EVENT_1_TOPIC)) {
             this.schemaRegistry = getMockClient(Event1.SCHEMA$);
         }
-        if (topic.equals(Constants.EVENT_2_TOPIC)) {
-            this.schemaRegistry = getMockClient(Event2.SCHEMA$);
-        }
-        if (topic.equals(Constants.EVENT_3_TOPIC)) {
-            this.schemaRegistry = getMockClient(Event3.SCHEMA$);
-        }
-        if (topic.equals(Constants.EVENT_4_TOPIC)) {
-            this.schemaRegistry = getMockClient(Event4.SCHEMA$);
-        }
+
         return super.deserialize(topic, bytes);
     }
 
