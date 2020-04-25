@@ -6,7 +6,7 @@ import org.mddarr.orders.event.dto.Event1;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.Test;
-import org.mddarr.orders.resources.AvroProducer;
+import org.mddarr.orders.service.AvroProducer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.test.utils.KafkaTestUtils;
 

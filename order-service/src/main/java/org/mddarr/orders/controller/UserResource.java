@@ -1,8 +1,8 @@
-package org.mddarr.orders.resources;
+package org.mddarr.orders.controller;
 
-import org.mddarr.orders.OrdersServiceApplication;
 import org.mddarr.orders.event.dto.Event1;
 import org.mddarr.orders.event.dto.Order;
+import org.mddarr.orders.service.AvroProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +14,9 @@ import org.springframework.web.context.request.async.DeferredResult;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping(value = "/user")
@@ -105,5 +107,22 @@ public class UserResource {
         });
         return deferredResult;
     }
-    
+
+
+    @GetMapping("/test")
+    DeferredResult<String> test(){
+        Long timeOutInMilliSec = 100000L;
+        String timeOutResp = "Time Out.";
+        DeferredResult<String> deferredResult = new DeferredResult<>(timeOutInMilliSec,timeOutResp);
+        CompletableFuture.runAsync(()->{
+            try {
+                //Long pooling task;If task is not completed within 100 sec timeout response retrun for this request
+                TimeUnit.SECONDS.sleep(10);
+                //set result after completing task to return response to client
+                deferredResult.setResult("Task Finished");
+            }catch (Exception ex){
+            }
+        });
+        return deferredResult;
+    }
 }

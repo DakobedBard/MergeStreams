@@ -1,4 +1,4 @@
-package org.mddarr.orders.resources;
+package org.mddarr.orders.service;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.mddarr.orders.Constants;

@@ -3,7 +3,7 @@ package org.mddarr.orders.event;
 import org.mddarr.orders.UatAbstractTest;
 
 import org.junit.Test;
-import org.mddarr.orders.resources.AvroConsumer;
+import org.mddarr.orders.service.AvroConsumer;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
