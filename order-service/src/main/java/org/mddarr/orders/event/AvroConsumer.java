@@ -4,7 +4,6 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.mddarr.orders.Constants;
 import org.mddarr.orders.event.dto.Event1;
 
-import org.mddarr.orders.resources.OrderResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
