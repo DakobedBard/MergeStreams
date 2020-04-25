@@ -2,8 +2,7 @@ package org.mddarr.orders.event;
 
 import org.mddarr.orders.Constants;
 import org.mddarr.orders.UatAbstractTest;
-import org.mddarr.orders.event.dto.Event3;
-import org.mddarr.orders.event.dto.Event4;
+
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.junit.Test;

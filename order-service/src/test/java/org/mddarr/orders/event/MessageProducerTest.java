@@ -3,7 +3,7 @@ package org.mddarr.orders.event;
 import org.mddarr.orders.Constants;
 import org.mddarr.orders.UatAbstractTest;
 import org.mddarr.orders.event.dto.Event1;
-import org.mddarr.orders.event.dto.Event2;
+
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;

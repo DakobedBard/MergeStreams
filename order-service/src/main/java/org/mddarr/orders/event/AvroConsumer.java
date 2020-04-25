@@ -3,8 +3,7 @@ package org.mddarr.orders.event;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.mddarr.orders.Constants;
 import org.mddarr.orders.event.dto.Event1;
-import org.mddarr.orders.event.dto.Event3;
-import org.mddarr.orders.event.dto.Event4;
+
 import org.mddarr.orders.resources.OrderResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
