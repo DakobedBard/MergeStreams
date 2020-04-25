@@ -19,9 +19,6 @@
     <modules>
         <module>order-service</module>
         <module>avro-schema</module>
-        <module>movie-service</module>
-        <module>stream</module>
-        <module>listener</module>
     </modules>
     <repositories>
         <repository>
