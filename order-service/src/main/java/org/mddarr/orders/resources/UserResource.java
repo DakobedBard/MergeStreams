@@ -2,11 +2,15 @@ package org.mddarr.orders.resources;
 
 import org.mddarr.orders.event.AvroProducer;
 import org.mddarr.orders.event.dto.Event1;
+import org.mddarr.orders.event.dto.Order;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+import java.util.UUID;
 
 
 @RestController
@@ -26,4 +30,17 @@ public class UserResource {
         return "hey";
 //        this.producer.sendEvent1();
     }
+
+
+    @PostMapping("/orders/")
+    public String product(@RequestParam(value="products") List<Long> products, @RequestParam(value="quantities") List<Long> quantities,
+                          @RequestParam(value="cid")  Long cid, @RequestParam(value="price") Long price)
+    {
+
+        UUID uuid =  UUID.randomUUID();
+        Order order = new Order(uuid.toString(),1L,products,quantities);
+        this.producer.sendOrder(order);
+        return "order";
+    }
+
 }
